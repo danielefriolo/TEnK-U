@@ -9,3 +9,6 @@ We highly recommend to not to use our smart contracts for different reason than 
 The following extra smart contract libraries are used:
 * Elliptic Curve Solidity - https://github.com/tdrerup/elliptic-curve-solidity
 * Base64 Library - https://github.com/OpenZeppelin/solidity-jwt/blob/master/contracts/Base64.sol
+* ProtoBuf Library - https://github.com/lazyledger/protobuf3-solidity-lib
+* Ethereum DateTime - https://github.com/pipermerriam/ethereum-datetime
+* Solidity Bytes Utils - https://github.com/GNSPS/solidity-bytes-utils
