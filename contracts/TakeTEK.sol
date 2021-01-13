@@ -1,5 +1,4 @@
 pragma solidity ^0.6.0;
- import "./GaenKey.sol";
 import "@lazyledger/protobuf3-solidity-lib/contracts/ProtobufLib.sol";
  import "./libs/Base64.sol";
  import "./libs/DateTime.sol";
@@ -8,18 +7,6 @@ import "@lazyledger/protobuf3-solidity-lib/contracts/ProtobufLib.sol";
  
  
 contract TakeTEK is EllipticCurve  {
-    
-    //TEK Mapping
- /*struct GaenKey {
-    	string keyData; //base64 key (optional)
-    	uint rollingStartNumber;
-    	uint rollingPeriod;
-    	uint transmissionRiskLevel;
-    }*/
-    //mapping (uint => GaenKey) keys;
-   //GaenKey[] keys;
-    //GaenKey[] list;
-
     uint[2] tekPK;
     uint256 prize;
     address payable buyer; 
@@ -86,17 +73,18 @@ contract TakeTEK is EllipticCurve  {
         buyer.transfer(prize);
         buyer.transfer(collateral);
     }
-    //auxiliary functions
-    function checkKey(bytes16 _keyData, uint _rollingStartNumber, uint _transmissionRiskLevel) internal view returns (bool) {
-    		for (uint j = 0; j < keys.length; j++) {
- 		       if (keccak256(abi.encodePacked(_keyData)) == keccak256(abi.encodePacked(keys[j])) &&
- 		     _rollingStartNumber == rollingStartNumbers[j] &&
- 		       _transmissionRiskLevel == transmissionRiskLevels[j])
- 		        return true;
-    		}
- 	return false;
+     //auxiliary functions
+    function checkKey(bytes16 _keyData, uint _rollingStartNumber, uint _transmissionRiskLevel) public returns (uint) {
+            for (uint j = 0; j < keys.length; j++) {
+               if (keccak256(abi.encodePacked(_keyData)) == keccak256(abi.encodePacked(keys[j])) &&
+             _rollingStartNumber == rollingStartNumbers[j] &&
+               _transmissionRiskLevel == transmissionRiskLevels[j])
+                return j+1;
+            }
+    return 0;
     }
-    function checkExportKeys(bytes memory exportFile, uint expStart)  internal returns (bool) {
+    function checkExportKeys(bytes memory exportFile, uint expStart)  public returns (bool) {
+        bool[] memory checks = new bool[](keys.length);
        uint64 pos = uint64(expStart);
             while (pos < exportFile.length) {
             bytes16 _keyData = toBytes16(exportFile,pos);
@@ -117,8 +105,11 @@ contract TakeTEK is EllipticCurve  {
             //Value not important in Immuni
             pos = p3+7;*/
             pos += 10;
-            if (!checkKey(_keyData,_rollingStartNumber,_transmissionRiskLevel)) return false;
+            uint i = checkKey(_keyData,_rollingStartNumber,_transmissionRiskLevel);
+            if (i != 0) checks[i-1] = true;
         }
+        for(uint i = 0; i < keys.length; i++)
+                if (!checks[i]) return false;
         return true;
     } 
 
